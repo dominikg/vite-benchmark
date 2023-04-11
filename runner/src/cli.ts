@@ -5,12 +5,13 @@ import colors from 'picocolors'
 import core from '@actions/core'
 
 import {
-  composeGitHubActionsSummary,
+  composeGitHubActionsSummary, filterCases,
   prepareBenches,
   runBenches,
 } from './cases'
 import { VITE_DIR } from './constant'
 import {
+  BaseCase,
   buildVite,
   cloneVite,
   type Compare,
@@ -22,7 +23,7 @@ const cli = cac()
 const isGitHubActions = !!process.env['GITHUB_ACTIONS']
 
 cli
-  .command('bench', 'run full benchmark process')
+  .command('bench [...cases]', 'run full benchmark process')
   .option('--repeats <repeats>', 'number of benchmark repeats')
   .option(
     '--pull-number [pullNumber]',
@@ -37,7 +38,8 @@ cli
     '--skip-prepare [skipPrepare]',
     'skip prepare Vite projects matched with compares arg'
   )
-  .action(async (options) => {
+  .action(async (cases,options) => {
+    let baseCases = filterCases(cases);
     let compares: Compare[] = []
     if (options.pullNumber) {
       const { source, target } = await getPullRequestData(options.pullNumber)
@@ -83,6 +85,7 @@ cli
     }
 
     const summarizedResult = await runBenches({
+      baseCases,
       compares,
       repeats: options.repeats,
     })

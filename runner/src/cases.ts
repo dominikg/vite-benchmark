@@ -42,30 +42,60 @@ export async function prepareBenches({
   }
 }
 
+export const baseCases: BaseCase[] = [
+  {
+    id: 'react-vite27-slow',
+    port: 5173,
+    script: 'dev',
+    displayName: 'vite 2.7 slow',
+    viteCache: './node_modules/.vite',
+  },
+  {
+    id: 'react-1000-components',
+    port: 5173,
+    script: 'start:vite',
+    displayName: '1000 React components',
+    viteCache: './node_modules/.vite',
+  },
+  {
+    id: 'svelte-1000-components',
+    port: 5173,
+    script: 'dev',
+    displayName: '1000 Svelte components',
+    viteCache: './node_modules/.vite',
+  },
+  {
+    id: 'svelte-template',
+    port: 5173,
+    script: 'dev',
+    displayName: 'svelte template',
+    viteCache: './node_modules/.vite',
+  },
+  {
+    id: 'svelte-app-with-deps',
+    port: 5173,
+    script: 'dev',
+    displayName: 'svelte app with dependencies',
+    viteCache: './node_modules/.vite',
+  },
+]
+export function filterCases(ids?: string[]) {
+  if(ids?.length >0) {
+    return baseCases.filter(c => ids.includes(c.id))
+  }
+  return baseCases.concat()
+}
 export async function runBenches({
+  baseCases,
   compares,
   repeats,
 }: {
+  baseCases: BaseCase[],
   compares: Compare[]
   repeats: number
 }) {
   console.log(colors.cyan(`Running benchmarks`))
-  const baseCases: BaseCase[] = [
-    {
-      id: 'perf-1',
-      port: 5173,
-      script: 'dev',
-      displayName: 'vite 2.7 slow',
-      viteCache: './node_modules/.vite',
-    },
-    {
-      id: 'perf-2',
-      port: 5173,
-      script: 'start:vite',
-      displayName: '1000 React components',
-      viteCache: './node_modules/.vite',
-    },
-  ]
+
 
   // interleaving running cases could reduce the variance
   // A(perf1) -> B(perf1) -> A(perf2) -> B(perf2) and repeat for several times
